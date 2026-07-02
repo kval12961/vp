@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Replacer Tool</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            padding: 30px 15px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            padding: 30px 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        h1 {
+            font-size: 26px;
+            margin-bottom: 8px;
+            color: #1a2634;
+        }
+        .subtitle {
+            color: #556;
+            margin-bottom: 25px;
+            font-size: 15px;
+            border-left: 4px solid #3b82f6;
+            padding-left: 14px;
+            background: #f8fafc;
+            border-radius: 0 8px 8px 0;
+            line-height: 1.5;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin: 18px 0 6px;
+            color: #1e293b;
+        }
+        textarea, .word-list-area {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #fafcff;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        textarea:focus, .word-list-area:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+            background: white;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .word-list-area {
+            min-height: 90px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background: #f8fafc;
+        }
+        .hint {
+            font-size: 13px;
+            color: #475569;
+            margin-top: 5px;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 18px 0 10px;
+        }
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.15s;
+            flex: 1 0 auto;
+            min-width: 110px;
+        }
+        .btn:hover {
+            background: #2563eb;
+            transform: scale(1.01);
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+        .btn-success {
+            background: #22c55e;
+        }
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        .btn-danger {
+            background: #ef4444;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .output-area {
+            margin-top: 25px;
+            border-top: 2px dashed #e2e8f0;
+            padding-top: 20px;
+        }
+        .output-box {
+            background: #f1f5f9;
+            padding: 16px 18px;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            min-height: 60px;
+            font-size: 16px;
+            line-height: 1.6;
+            border: 1px solid #e2e8f0;
+        }
+        .output-box .highlight {
+            background: #fde047;
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: #334155;
+            margin-top: 10px;
+            gap: 6px;
+        }
+        .badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .footer {
+            margin-top: 28px;
+            font-size: 13px;
+            color: #94a3b8;
+            text-align: center;
+        }
+        .example {
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #334155;
+            cursor: pointer;
+            display: inline-block;
+            margin: 4px 4px 0 0;
+            transition: 0.1s;
+        }
+        .example:hover {
+            background: #e2e8f0;
+        }
+        .flex {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+        @media (max-width: 500px) {
+            .container { padding: 18px 14px; }
+            .btn { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🔁 Word Replacer</h1>
+    <div class="subtitle">
+        Paste any text below. Any word from your <strong>word list</strong> will be replaced with its <strong>replacement</strong>.
+        <br>You can add, edit, or remove rules anytime — all changes stay in your browser.
+    </div>
+
+    <!-- ====== INPUT TEXT ====== -->
+    <label for="inputText">📄 Text to process</label>
+    <textarea id="inputText" placeholder="Paste your text here...">He ate an apple. She bought a banana. The cat is cute.</textarea>
+
+    <!-- ====== WORD LIST (key → replacement) ====== -->
+    <label for="wordList">📝 Word list <span style="font-weight:400; color:#475569;">(one rule per line: <code>word -> replacement</code>)</span></label>
+    <textarea id="wordList" class="word-list-area" spellcheck="false">apple -> ap*ple
+banana -> ban*na
+cat -> k@t</textarea>
+    <div class="hint">
+        💡 Use <code>-></code> between the original word and its replacement. 
+        <span style="display:inline-block; margin-left:10px;">
+            <span class="example" onclick="insertExample()">📥 Load example</span>
+        </span>
+    </div>
+
+    <!-- ====== BUTTONS ====== -->
+    <div class="row">
+        <button class="btn" onclick="processText()">▶ Replace words</button>
+        <button class="btn btn-secondary" onclick="clearAll()">🗑 Clear all</button>
+        <button class="btn btn-success" onclick="copyOutput()">📋 Copy result</button>
+    </div>
+
+    <!-- ====== OUTPUT ====== -->
+    <div class="output-area">
+        <div class="flex" style="justify-content:space-between;">
+            <label style="margin:0; font-weight:600;">✅ Result</label>
+            <span id="replaceCount" class="badge">0 replacements</span>
+        </div>
+        <div id="outputBox" class="output-box">
+            Click <strong>"Replace words"</strong> to see the result here.
+        </div>
+        <div class="stats">
+            <span id="wordCount">Words: 0</span>
+            <span id="charCount">Characters: 0</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        All data stays in your browser. No data is sent anywhere.
+    </div>
+</div>
+
+<script>
+    (function() {
+        // --- DOM refs ---
+        const inputText = document.getElementById('inputText');
+        const wordListEl = document.getElementById('wordList');
+        const outputBox = document.getElementById('outputBox');
+        const replaceCountSpan = document.getElementById('replaceCount');
+        const wordCountSpan = document.getElementById('wordCount');
+        const charCountSpan = document.getElementById('charCount');
+
+        // --- helper: parse word list ---
+        function parseWordList(text) {
+            const lines = text.split(/\r?\n/);
+            const rules = [];
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+                // split on '->' (with optional spaces)
+                const parts = line.split(/\s*->\s*/);
+                if (parts.length === 2) {
+                    const original = parts[0].trim();
+                    const replacement = parts[1].trim();
+                    if (original && replacement) {
+                        rules.push({ original, replacement });
+                    }
+                }
+            }
+            return rules;
+        }
+
+        // --- main replacement function ---
+        function processText() {
+            const text = inputText.value;
+            if (!text.trim()) {
+                outputBox.innerHTML = '<span style="color:#94a3b8;">⚠️ Please paste some text first.</span>';
+                replaceCountSpan.textContent = '0 replacements';
+                updateStats('');
+                return;
+            }
+
+            const rulesText = wordListEl.value;
+            const rules = parseWordList(rulesText);
+
+            if (rules.length === 0) {
+                outputBox.innerHTML = '<span style="color:#b45309;">⚠️ No valid rules found. Use <code>word -> replacement</code> format.</span>';
+                replaceCountSpan.textContent = '0 replacements';
+                updateStats(text);
+                return;
+            }
+
+            // Build a regex that matches whole words only (case-insensitive)
+            // Escape special regex characters in each original word.
+            const escapedWords = rules.map(r => r.original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            // Sort by length descending so longer words match first (e.g., "apple pie" vs "apple")
+            escapedWords.sort((a, b) => b.length - a.length);
+            const pattern = escapedWords.join('|');
+            const regex = new RegExp('\\b(' + pattern + ')\\b', 'gi');
+
+            // Build a map for fast lookup (lowercase original -> replacement)
+            const map = new Map();
+            for (const r of rules) {
+                map.set(r.original.toLowerCase(), r.replacement);
+            }
+
+            let replacedCount = 0;
+            // We'll replace while preserving original case if needed? 
+            // Simpler: replace with the exact replacement as defined.
+            // But we want to preserve case of the matched word? The user said "Apple -> Ap*ple" so we just replace exact.
+            // We'll do a simple replacement that respects the map.
+
+            // However, regex replacement with a function allows us to count and replace.
+            const result = text.replace(regex, (match) => {
+                // match is the exact word as it appears (case preserved)
+                const lower = match.toLowerCase();
+                const replacement = map.get(lower);
+                if (replacement) {
+                    replacedCount++;
+                    return replacement;
+                }
+                return match; // fallback (should not happen)
+            });
+
+            // Update output
+            outputBox.innerHTML = result || ' '; // preserve empty with non-breaking space
+            replaceCountSpan.textContent = `${replacedCount} replacement${replacedCount !== 1 ? 's' : ''}`;
+            updateStats(result);
+        }
+
+        // --- update word/char stats ---
+        function updateStats(text) {
+            const trimmed = text.trim();
+            if (!trimmed) {
+                wordCountSpan.textContent = 'Words: 0';
+                charCountSpan.textContent = 'Characters: 0';
+                return;
+            }
+            const words = trimmed.split(/\s+/).filter(w => w.length > 0);
+            wordCountSpan.textContent = `Words: ${words.length}`;
+            charCountSpan.textContent = `Characters: ${trimmed.length}`;
+        }
+
+        // --- copy output to clipboard ---
+        function copyOutput() {
+            const text = outputBox.textContent || outputBox.innerText;
+            if (!text || text.trim() === '') {
+                alert('Nothing to copy — run replacement first.');
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Copied to clipboard!');
+            }).catch(() => {
+                // fallback
+                const range = document.createRange();
+                range.selectNode(outputBox);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                alert('✅ Copied!');
+            });
+        }
+
+        // --- clear all fields ---
+        function clearAll() {
+            if (confirm('Clear all text and rules?')) {
+                inputText.value = '';
+                wordListEl.value = '';
+                outputBox.innerHTML = '<span style="color:#94a3b8;">Cleared. Paste text and add rules.</span>';
+                replaceCountSpan.textContent = '0 replacements';
+                updateStats('');
+            }
+        }
+
+        // --- insert example rules & text ---
+        function insertExample() {
+            wordListEl.value = `apple -> ap*ple
+banana -> ban*na
+cat -> k@t
+dog -> d0g
+hello -> h3ll0`;
+            inputText.value = 'He ate an apple. She bought a banana. The cat is cute. The dog barked. Hello world!';
+            // Auto-process after a tiny delay
+            setTimeout(processText, 50);
+        }
+
+        // --- expose functions globally ---
+        window.processText = processText;
+        window.copyOutput = copyOutput;
+        window.clearAll = clearAll;
+        window.insertExample = insertExample;
+
+        // --- auto-process on page load with existing content ---
+        window.addEventListener('DOMContentLoaded', function() {
+            // If there's text in input and rules, process automatically
+            if (inputText.value.trim() && wordListEl.value.trim()) {
+                processText();
+            }
+        });
+
+    })();
+</script>
+
+</body>
+</html>
